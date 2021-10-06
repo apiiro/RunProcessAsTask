@@ -1,9 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net472;$(TargetFrameworks)</TargetFrameworks>
     <OutputType>Library</OutputType>
-    <OutputPath>..\Build</OutputPath><!-- same dir as dummy-app -->
+    <OutputPath>..\Build</OutputPath>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>9</LangVersion><!-- same dir as dummy-app -->
   </PropertyGroup>
 
   <PropertyGroup>

@@ -1,6 +1,14 @@
 RunProcessAsTask
 ================
 
+To push to apiiro nuget package:
+
+```bash
+src/RunProcessAsTask
+dotnet pack --configuration Release
+dotnet nuget push bin/Release/Apiiro.RunProcessAsTask.*.nupkg --source "github" --skip-duplicate --no-symbols true
+```
+
 [![Travis Build Status](https://travis-ci.org/jamesmanning/RunProcessAsTask.svg?branch=master)](https://travis-ci.org/jamesmanning/RunProcessAsTask)
 [![AppVeyor](https://img.shields.io/appveyor/ci/jamesmanning/RunProcessAsTask.svg)](https://ci.appveyor.com/project/jamesmanning/RunProcessAsTask)
 [![Coveralls](https://img.shields.io/coveralls/jamesmanning/RunProcessAsTask.svg)](https://coveralls.io/github/jamesmanning/RunProcessAsTask)

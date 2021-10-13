@@ -4,7 +4,8 @@ RunProcessAsTask
 To push to apiiro nuget package:
 
 ```bash
-src/RunProcessAsTask
+cd src/RunProcessAsTask
+rm bin/Release/Apiiro.RunProcessAsTask.*.nupkg
 dotnet pack --configuration Release
 dotnet nuget push bin/Release/Apiiro.RunProcessAsTask.*.nupkg --source "github" --skip-duplicate --no-symbols true
 ```

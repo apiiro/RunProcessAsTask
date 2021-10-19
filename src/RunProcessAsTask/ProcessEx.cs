@@ -63,14 +63,14 @@ namespace RunProcessAsTask
                 // we await the task results for stdout/stderr to ensure they both closed.  We must await
                 // the stdout/stderr tasks instead of just accessing the Result property due to behavior on MacOS.  
                 // For more details, see the PR at https://github.com/jamesmanning/RunProcessAsTask/pull/16/
-                tcs.TrySetResult(
+                Task.Run(async () => tcs.TrySetResult(
                     new ProcessResults(
-                        process, 
-                        await processStartTime.Task.ConfigureAwait(false), 
-                        await standardOutputResults.Task.ConfigureAwait(false), 
+                        process,
+                        await processStartTime.Task.ConfigureAwait(false),
+                        await standardOutputResults.Task.ConfigureAwait(false),
                         await standardErrorResults.Task.ConfigureAwait(false)
                     )
-                );
+                ));
             }
 
             process.Exited += OnExited;
@@ -81,15 +81,24 @@ namespace RunProcessAsTask
                     {
                         if (!process.HasExited)
                         {
+                            process.CancelErrorRead();
+                            process.CancelOutputRead();
                             process.OutputDataReceived -= OutputDataReceived;
                             process.ErrorDataReceived -= ErrorDataReceived;
                             process.Exited -= OnExited;
                             process.Kill();
                             if (!process.WaitForExit(_processExitGraceTime.Milliseconds))
                             {
-                                if (!process.HasExited)
+                                try
                                 {
-                                    throw new TimeoutException($"Timed out after {_processExitGraceTime.TotalSeconds:N2} seconds waiting for cancelled process to exit: {process}");
+                                    var processRefetched = Process.GetProcessById(process.Id);
+                                    if (!process.HasExited && !processRefetched.HasExited)
+                                    {
+                                        throw new TimeoutException($"Timed out after {_processExitGraceTime.TotalSeconds:N2} seconds waiting for cancelled process to exit: {process}");
+                                    }
+                                }
+                                catch (ArgumentException)
+                                {
                                 }
                             }
                         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,6 +55,9 @@ namespace RunProcessAsTask
         /// <param name="processStartInfo">The <see cref="T:System.Diagnostics.ProcessStartInfo" /> that contains the information that is used to start the process, including the file name and any command-line arguments.</param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
         public static Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo, CancellationToken cancellationToken)
-            => RunAsync(processStartInfo, new List<string>(), new List<string>(), cancellationToken);
+            => RunAsync(processStartInfo, new List<string>(), new List<string>(), TimeSpan.FromSeconds(30), cancellationToken);
+
+        public static Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo, List<string> standardOutput, List<string> standardError, CancellationToken cancellationToken)
+            => RunAsync(processStartInfo, standardOutput, standardError, TimeSpan.FromSeconds(30), cancellationToken);
     }
 }

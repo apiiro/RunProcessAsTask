@@ -8,16 +8,15 @@ namespace RunProcessAsTask
 {
     public static partial class ProcessEx
     {
-        private static readonly TimeSpan _processExitGraceTime = TimeSpan.FromSeconds(30);
-        
         /// <summary>
         /// Runs asynchronous process.
         /// </summary>
         /// <param name="processStartInfo">The <see cref="T:System.Diagnostics.ProcessStartInfo" /> that contains the information that is used to start the process, including the file name and any command-line arguments.</param>
         /// <param name="standardOutput">List that lines written to standard output by the process will be added to</param>
         /// <param name="standardError">List that lines written to standard error by the process will be added to</param>
+        /// <param name="processExitGraceTime"></param>
         /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
-        public static async Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo, List<string> standardOutput, List<string> standardError, CancellationToken cancellationToken)
+        public static async Task<ProcessResults> RunAsync(ProcessStartInfo processStartInfo, List<string> standardOutput, List<string> standardError, TimeSpan processExitGraceTime, CancellationToken cancellationToken)
         {
             // force some settings in the start info so we can capture the output
             processStartInfo.UseShellExecute = false;
@@ -87,14 +86,14 @@ namespace RunProcessAsTask
                             process.ErrorDataReceived -= ErrorDataReceived;
                             process.Exited -= OnExited;
                             process.Kill();
-                            if (!process.WaitForExit(_processExitGraceTime.Milliseconds))
+                            if (!process.WaitForExit(processExitGraceTime.Milliseconds))
                             {
                                 try
                                 {
                                     var processRefetched = Process.GetProcessById(process.Id);
                                     if (!process.HasExited && !processRefetched.HasExited)
                                     {
-                                        throw new TimeoutException($"Timed out after {_processExitGraceTime.TotalSeconds:N2} seconds waiting for cancelled process to exit: {process}");
+                                        throw new TimeoutException($"Timed out after {processExitGraceTime.TotalSeconds:N2} seconds waiting for cancelled process to exit: {process}");
                                     }
                                 }
                                 catch (ArgumentException)

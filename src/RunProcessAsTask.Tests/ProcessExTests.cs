@@ -119,7 +119,7 @@ namespace RunProcessAsTask.Tests
                 int expectedStandardErrorLineCount)
                 => new ProcessStartInfo(
                     "dotnet",
-                    string.Join(" ", "../netcoreapp2.2/DummyConsoleApp.dll", expectedExitCode, millisecondsToSleep, expectedStandardOutputLineCount, expectedStandardErrorLineCount)
+                    string.Join(" ", "../net5.0/DummyConsoleApp.dll", expectedExitCode, millisecondsToSleep, expectedStandardOutputLineCount, expectedStandardErrorLineCount)
                 )
                 {
                     WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,

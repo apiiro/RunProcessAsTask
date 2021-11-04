@@ -25,7 +25,8 @@ namespace RunProcessAsTask
 
             var tcs = new TaskCompletionSource<ProcessResults>();
 
-            var process = new Process {
+            var process = new Process
+            {
                 StartInfo = processStartInfo,
                 EnableRaisingEvents = true
             };
@@ -75,7 +76,8 @@ namespace RunProcessAsTask
             process.Exited += OnExited;
 
             using (cancellationToken.Register(
-                () => {
+                async () =>
+                {
                     try
                     {
                         if (!process.HasExited)
@@ -86,21 +88,16 @@ namespace RunProcessAsTask
                             process.ErrorDataReceived -= ErrorDataReceived;
                             process.Exited -= OnExited;
                             process.Kill();
-                            if (!process.WaitForExit(processExitGraceTime.Milliseconds))
+                            await Task.Delay(TimeSpan.FromSeconds(1));
+                            if (!process.HasExited)
                             {
-                                try
+                                if (!process.WaitForExit(processExitGraceTime.Milliseconds))
                                 {
-                                    var processRefetched = Process.GetProcessById(process.Id);
-                                    if (!process.HasExited && !processRefetched.HasExited)
-                                    {
-                                        throw new TimeoutException($"Timed out after {processExitGraceTime.TotalSeconds:N2} seconds waiting for cancelled process to exit: {process}");
-                                    }
-                                }
-                                catch (ArgumentException)
-                                {
+                                    throw new TimeoutException($"Timed out after {processExitGraceTime.TotalSeconds:N2} seconds waiting for cancelled process to exit: {process}");
                                 }
                             }
                         }
+
                         tcs.TrySetCanceled();
                     }
                     catch (InvalidOperationException)
@@ -110,7 +107,8 @@ namespace RunProcessAsTask
                     {
                         tcs.SetException(new Exception($"Failed to kill process '{process.StartInfo.FileName}' ({process.Id}) upon cancellation", exception));
                     }
-                })) {
+                }))
+            {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var startTime = DateTime.Now;
@@ -129,6 +127,7 @@ namespace RunProcessAsTask
                         // best effort to try and get a more accurate start time, but if we fail to access StartTime
                         // (for instance, process has already existed), we still have a valid value to use.
                     }
+
                     processStartTime.SetResult(startTime);
 
                     process.BeginOutputReadLine();
